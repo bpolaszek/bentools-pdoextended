@@ -1,7 +1,7 @@
 PDOExtended
 ===========
 
-A PDO extension that will help your developper's life.
+A PDO extension that will help your developer's life.
 
 Example usage :
 
