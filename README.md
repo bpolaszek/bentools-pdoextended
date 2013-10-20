@@ -5,7 +5,8 @@ A PDO extension that will help your developer's life.
 
 Example usage :
 
-
+```php
+<?php
 
 	require_once		'PDOExtended/PDOExtended.php';
 
