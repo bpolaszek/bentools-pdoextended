@@ -19,10 +19,10 @@ $Row = $Cnx->SqlRow("SELECT * FROM table WHERE Name LIKE :Name AND Id >= :Id", [
 
 ```php
 
-$Stmt = $Cnx->Prepare("SELECT Id FROM table WHERE CreationDate BETWEEN ? AND ?");
-$Ids = $Stmt->SqlColumn(['2013-01-01', '2013-06-01']); // Fetches Ids in an indexed array
-var_dump($Stmt->Debug()->Preview); // SELECT Id FROM table WHERE CreationDate BETWEEN '2013-01-01' AND '2013-06-01'
-var_dump($Stmt->Debug()->Duration); // 0.004
+$stmt = $Cnx->Prepare("SELECT Id FROM table WHERE CreationDate BETWEEN ? AND ?");
+$Ids = $stmt->SqlColumn(['2013-01-01', '2013-06-01']); // Fetches Ids in an indexed array
+var_dump($stmt->Debug()->Preview); // SELECT Id FROM table WHERE CreationDate BETWEEN '2013-01-01' AND '2013-06-01'
+var_dump($stmt->Debug()->Duration); // 0.004
 
 ``` 
 
@@ -34,8 +34,8 @@ try {
     $Rows = $Cnx->SqlArray("SELECT * FROM table WHERE Id IN (".PDOStatementExtended::PlaceHolders($Ids).")", $Ids);
 }
 catch (StmtException $e) {
-    var_dump($e->GetStmt()->queryString); // SELECT * FROM table WHERE Id IN (?, ?, ?, ?, ?)
-    var_dump($e->GetStmt()->Preview); // SELECT * FROM table WHERE Id IN (2, 5, 8, 24, 26)
+    var_dump($e->getStmt()->queryString); // SELECT * FROM table WHERE Id IN (?, ?, ?, ?, ?)
+    var_dump($e->getStmt()->Preview); // SELECT * FROM table WHERE Id IN (2, 5, 8, 24, 26)
 }
 
 // Also works with strings with automatic quote wrapping
@@ -44,8 +44,8 @@ try {
     $Rows = $Cnx->SqlArray("SELECT * FROM table WHERE CreationDate IN (".PDOStatementExtended::PlaceHolders($Dates).")", $Dates);
 }
 catch (StmtException $e) {
-    var_dump($e->GetStmt()->queryString); // SELECT * FROM table WHERE CreationDate IN (?, ?)
-    var_dump($e->GetStmt()->Preview); // SELECT * FROM table WHERE CreationDate IN ('2013-01-01', '2013-06-01')
+    var_dump($e->getStmt()->queryString); // SELECT * FROM table WHERE CreationDate IN (?, ?)
+    var_dump($e->getStmt()->Preview); // SELECT * FROM table WHERE CreationDate IN ('2013-01-01', '2013-06-01')
 }
 ``` 
 
@@ -173,12 +173,12 @@ var_dump($Cnx->SqlMultiAssoc("SELECT Channel, Id, Name FROM TVSeries WHERE Id IN
 var_dump($Cnx->Prepare("SELECT Channel, Id, Name FROM TVSeries WHERE Id IN (?, ?)")->SqlMultiAssoc(Array(2, 3), PDOExtended::TO_STDCLASS));
 
 // How long the query has taken ?
-$Stmt   =   $Cnx->Prepare("SELECT * FROM TVSeries WHERE Id = :Id OR Name LIKE :Name");
-$Res    =   $Stmt->SqlArray(Array('Id' => 1, 'Name' => 'Dexter'));
-var_dump($Stmt->Duration);
+$stmt   =   $Cnx->Prepare("SELECT * FROM TVSeries WHERE Id = :Id OR Name LIKE :Name");
+$Res    =   $stmt->SqlArray(Array('Id' => 1, 'Name' => 'Dexter'));
+var_dump($stmt->Duration);
 
 // What was the real query played ?
-var_dump($Stmt->Debug()->Preview);
+var_dump($stmt->Debug()->Preview);
 
 // You can disconnect : every call afterwards will result in a PDO Exception until you invoke the Reconnect() method
 $Cnx->Disconnect();

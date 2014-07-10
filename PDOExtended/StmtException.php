@@ -35,16 +35,28 @@ use         PDOException;
  */
 Class StmtException Extends PDOException {
 
-    protected    $Stmt;
+    protected    $stmt;
+    protected    $previous;
 
-    public function __construct($Message, $Code, PDOException $Exception, PDOStatementExtended $Stmt) {
-        // PB avec le code HY093, alors que $Code est censé être de type long
-        parent::__construct($Message, (int) $Code);
-        $this->Stmt    =    $Stmt;
+    public function __construct($message, $code, PDOException $previous, PDOStatementExtended $stmt) {
+        $this->message  =   $message;
+        $this->code     =   $code;
+        $this->previous =   $previous;
+        $this->stmt     =   $stmt;
     }
 
-    public function GetStmt() {
-        return $this->Stmt;
+    /**
+     * @return PDOStatementExtended
+     */
+    public function getStmt() {
+        return $this->stmt;
+    }
+
+    /**
+     * @return \PDOException
+     */
+    public function getPrevious() {
+        return $this->previous;
     }
 
 }

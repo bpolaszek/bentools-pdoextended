@@ -261,7 +261,7 @@ Class PDOExtended {
      * @param string $sqlString : SQL query
      * @param array $sqlValues : Optional PDO Values to bind
      * @param array $driver_options
-     * @return PDOStatementExtended Stmt
+     * @return PDOStatementExtended stmt
      * @access public
      * @author Beno!t POLASZEK - 2013
      */
@@ -308,7 +308,7 @@ Class PDOExtended {
      * @param mixed $sqlString : SQL Query (String or instanceof PDOStatement)
      * @param array $sqlValues : Optional PDO Values to bind
      * @param array $driver_options
-     * @return PDOStatementExtended Stmt (executed)
+     * @return PDOStatementExtended stmt (executed)
      * @access public
      */
     public function sql($sqlString, $sqlValues = array(), $driver_options = array()) {
