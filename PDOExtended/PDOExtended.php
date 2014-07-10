@@ -35,16 +35,16 @@ use PDO;
  */
 Class PDOExtended {
 
-    protected       $_PDO;
-    protected       $_dsn;
-    protected       $_username;
-    protected       $_password;
-    protected       $_driver_options;
-    protected       $_isConnected       =   false;
-    protected       $_isPaused          =   false;
-    protected       $_storeStmts        =   true;
-    protected       $_storedStmts       =   Array();
-    protected       $_latestStmt;
+    protected       $PDO;
+    protected       $dsn;
+    protected       $username;
+    protected       $password;
+    protected       $driver_options;
+    protected       $isConnected        =   false;
+    protected       $isPaused           =   false;
+    protected       $storeStmts         =   true;
+    protected       $storedStmts        =   array();
+    protected       $latestStmt;
 
     const           TO_ARRAY_ASSOC      =    1;
     const           TO_ARRAY_INDEX      =    2;
@@ -60,10 +60,10 @@ Class PDOExtended {
     public function __construct($dsn = null, $username = null, $password = null, $driver_options = null, $connect = true) {
 
         # Setting properties
-        $this    ->    _dsn              =    $dsn;
-        $this    ->    _username         =    $username;
-        $this    ->    _password         =    $password;
-        $this    ->    _driver_options   =    $driver_options;
+        $this    ->    dsn              =    $dsn;
+        $this    ->    username         =    $username;
+        $this    ->    password         =    $password;
+        $this    ->    driver_options   =    $driver_options;
 
         # Autoconnect
         if ((bool) $connect)
@@ -102,12 +102,12 @@ Class PDOExtended {
     public function __call($name, array $args) {
 
         # If the connection was paused, we have to reconnect
-        !$this->_isPaused OR $this->reconnect();
+        !$this->isPaused OR $this->reconnect();
 
-        if (!($this->_PDO instanceof \PDO))
+        if (!($this->PDO instanceof \PDO))
             throw new \PDOException("PDO Connection isn't active.");
 
-        return call_user_func_array(array($this->_PDO, $name), $args);
+        return call_user_func_array(array($this->PDO, $name), $args);
     }
 
     /**
@@ -119,7 +119,7 @@ Class PDOExtended {
      */
     public function ping() {
 
-        if ($this->_isPaused)
+        if ($this->isPaused)
             return false;
 
         try {
@@ -139,12 +139,12 @@ Class PDOExtended {
      * @author Beno!t POLASZEK - 2013
      */
     public function disconnect() {
-        $this    ->    _PDO                =    null;
-        $this    ->    _isConnected        =    false;
+        $this    ->    PDO                =    null;
+        $this    ->    isConnected        =    false;
         return $this;
     }
 
-    /*
+    /**
      * Connects to the database
      * Optionnally, you can specify an existing PDO object instance to use, so as to avoid multiple connections
      * Example usage :
@@ -159,20 +159,20 @@ Class PDOExtended {
     public function connect(\PDO $PDO = null) {
 
         if ($PDO instanceof \PDO) {
-            $this->_PDO      =   $PDO;
+            $this->PDO      =   $PDO;
         }
 
         else {
             # Creating PDO instance into $this->PDO
-            $Class           =   new \ReflectionClass('\PDO');
-            $this->_PDO      =   $Class->NewInstanceArgs([$this->_dsn, $this->_username, $this->_password, $this->_driver_options]);
+            $class          =   new \ReflectionClass('\PDO');
+            $this->PDO      =   $class->NewInstanceArgs([$this->dsn, $this->username, $this->password, $this->driver_options]);
         }
 
-        $this->_PDO          ->  setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $this->_PDO          ->  setAttribute(PDO::ATTR_STATEMENT_CLASS, Array(__NAMESPACE__ . '\PDOStatementExtended'));
+        $this->PDO          ->  setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->PDO          ->  setAttribute(PDO::ATTR_STATEMENT_CLASS, Array(__NAMESPACE__ . '\PDOStatementExtended'));
 
         # Checking PDO connection
-        $this->_isConnected  =   $this->ping();
+        $this->isConnected  =   $this->ping();
 
         return $this;
     }
@@ -184,7 +184,7 @@ Class PDOExtended {
      * @access public
      */
     public function getPdo() {
-        return $this->_PDO;
+        return $this->PDO;
     }
 
     /**
@@ -197,7 +197,7 @@ Class PDOExtended {
      */
     public function pause() {
         $this    ->    disconnect();
-        $this    ->    _isPaused    =    true;
+        $this    ->    isPaused    =    true;
         return $this;
     }
 
@@ -210,47 +210,47 @@ Class PDOExtended {
      * @author Beno!t POLASZEK - 2013
      */
     public function reconnect() {
-        self::__construct($this->_dsn, $this->_username, $this->_password, $this->_driver_options);
+        self::__construct($this->dsn, $this->username, $this->password, $this->driver_options);
         return $this;
     }
 
     /**
      * Stores the latest statement
      *
-     * @param PDOStatement $Stmt
-     * @return current instance
+     * @param \PDOStatement $Stmt
+     * @return $this - current instance
      * @access protected
      * @author Beno!t POLASZEK -  2013
      */
-    protected function _setLatestStmt(\PDOStatement $Stmt) {
-        $this->_latestStmt    =    $Stmt;
+    protected function setLatestStmt(\PDOStatement $Stmt) {
+        $this->latestStmt    =    $Stmt;
         return $this;
     }
 
     /**
      * Retrieves the latest statement
      *
-     * @return PDOStatement
+     * @return \PDOStatement
      * @access public
      * @author Beno!t POLASZEK -  2013
      */
     public function getLatestStmt() {
-        return $this->_latestStmt;
+        return $this->latestStmt;
     }
 
-    /*
+    /**
      * Enables / Disables Statement storage
      *
      * @param bool $bool
-     * @return current instance
+     * @return $this - current instance
      */
     public function storeStmts($bool = true) {
 
-        $this->_storeStmts              =   (bool) $bool;
+        $this->storeStmts              =   (bool) $bool;
 
         # Clear stored statements
         if (!$bool)
-            $this->_storedStmts         =   Array();
+            $this->storedStmts         =   array();
 
         return $this;
     }
@@ -268,29 +268,29 @@ Class PDOExtended {
     public function prepare($sqlString, $sqlValues = array(), $driver_options = array()) {
 
         # If the connection was paused, we have to reconnect
-        !$this->_isPaused OR $this->reconnect();
+        !$this->isPaused OR $this->reconnect();
 
-        if (!($this->_PDO instanceof \PDO))
+        if (!($this->PDO instanceof \PDO))
             throw new \PDOException("PDO Connection isn't active.");
 
         # If stored statements are enabled
-        if ($this->_storeStmts && !is_object($sqlString)) {
+        if ($this->storeStmts && !is_object($sqlString)) {
             $SqlFootPrint   =   md5($sqlString);
-            if (!array_key_exists($SqlFootPrint, $this->_storedStmts))
-                $this->_storedStmts[$SqlFootPrint]   =   $this->_PDO->prepare($sqlString, $driver_options);
+            if (!array_key_exists($SqlFootPrint, $this->storedStmts))
+                $this->storedStmts[$SqlFootPrint]   =   $this->PDO->prepare($sqlString, $driver_options);
 
-            $Stmt           =   $this->_storedStmts[$SqlFootPrint];
+            $Stmt           =   $this->storedStmts[$SqlFootPrint];
         }
 
-        elseif (!$this->_storeStmts && $sqlString instanceof \PDOStatement)
+        elseif (!$this->storeStmts && $sqlString instanceof \PDOStatement)
             $Stmt           =   $sqlString;
 
         # The SQL Query becomes a SQL Statement
         else
-            $Stmt    =    $this->_PDO->prepare($sqlString, $driver_options);
+            $Stmt    =    $this->PDO->prepare($sqlString, $driver_options);
 
         if ($Stmt instanceof \PDOStatement)
-            $this->_setLatestStmt($Stmt);
+            $this->setLatestStmt($Stmt);
 
         if (empty($sqlValues))
             return $Stmt;
@@ -304,43 +304,43 @@ Class PDOExtended {
 
     /**
      * Prepares a SQL Statement and executes it
-     *
-     * @param mixed $sqlString : SQL Query (String or instanceof PDOStatement)
-     * @param array $sqlValues : Optional PDO Values to bind
+     * @param $sqlString
+     * @param array $sqlValues
      * @param array $driver_options
-     * @return PDOStatementExtended stmt (executed)
-     * @access public
+     * @return PDOStatementExtended|\PDOStatement
+     * @throws StmtException
+     * @throws \PDOException
      */
     public function sql($sqlString, $sqlValues = array(), $driver_options = array()) {
 
         # If the connection was paused, we have to reconnect
-        !$this->_isPaused OR $this->reconnect();
+        !$this->isPaused OR $this->reconnect();
 
-        if (!($this->_PDO instanceof \PDO))
+        if (!($this->PDO instanceof \PDO))
             throw new \PDOException("PDO Connection isn't active.");
 
         # If sqlString isn't a PDOStatement yet
-        $Stmt    =    ($sqlString instanceof \PDOStatement) ? $sqlString : $this->prepare($sqlString, $sqlValues, $driver_options);
+        $stmt    =    ($sqlString instanceof \PDOStatement) ? $sqlString : $this->prepare($sqlString, $sqlValues, $driver_options);
 
-        if ($Stmt instanceof \PDOStatement)
-            $this->_setLatestStmt($Stmt);
+        if ($stmt instanceof \PDOStatement)
+            $this->setLatestStmt($stmt);
 
         # If values have been provided, let's bind them
         if (!empty($sqlValues))
-            $Stmt->bindValues($sqlValues);
+            $stmt->bindValues($sqlValues);
 
         # Execution
         try {
-            $Stmt->execute();
+            $stmt->execute();
         }
 
             # Custom PDO Exception, allowing query preview
         catch (\PDOException $PDOException) {
-            throw new StmtException((string) $PDOException->getMessage(), $PDOException->getCode(), $PDOException, $Stmt->debug());
+            throw new StmtException((string) $PDOException->getMessage(), $PDOException->getCode(), $PDOException, $stmt->debug());
         }
 
         # The statement is executed. You can now use Fetch() and FetchAll() methods.
-        return $Stmt;
+        return $stmt;
     }
 
     /**
@@ -442,31 +442,31 @@ Class PDOExtended {
      * @return Array
      */
     public function sqlMultiAssoc($sqlString, $sqlValues = array(), $dataType = self::TO_STRING) {
-        $Data    =    $this->sql($sqlString, $sqlValues)->FetchAll(PDO::FETCH_ASSOC);
+        $data    =    $this->sql($sqlString, $sqlValues)->FetchAll(PDO::FETCH_ASSOC);
 
-        if (array_key_exists(0, $Data)) :
+        if (array_key_exists(0, $data)) :
 
-            $Keys    =    array_keys($Data[0]);
-            $Result    =    Array();
+            $keys    =    array_keys($data[0]);
+            $result    =    Array();
 
-            foreach ($Data AS $Item)
+            foreach ($data AS $item)
 
                 if ($dataType == self::TO_STDCLASS)
-                    $Result[]    =    Array($Item[$Keys[0]] => (object) array_slice($Item, 1));
+                    $result[]    =    Array($item[$keys[0]] => (object) array_slice($item, 1));
 
                 elseif ($dataType == self::TO_ARRAY_ASSOC)
-                    $Result[]    =    Array($Item[$Keys[0]] => array_slice($Item, 1));
+                    $result[]    =    Array($item[$keys[0]] => array_slice($item, 1));
 
                 elseif ($dataType == self::TO_ARRAY_INDEX)
-                    $Result[]    =    Array($Item[$Keys[0]] => array_values(array_slice($Item, 1)));
+                    $result[]    =    Array($item[$keys[0]] => array_values(array_slice($item, 1)));
 
                 else // $dataType == self::TO_STRING by default
-                    $Result[]    =    Array($Item[$Keys[0]] => $Item[$Keys[1]]);
+                    $result[]    =    Array($item[$keys[0]] => $item[$keys[1]]);
 
-            return $Result;
+            return $result;
 
         else :
-            return $Data;
+            return $data;
 
         endif;
 
@@ -474,10 +474,11 @@ Class PDOExtended {
 
     /**
      * Prevents from XSS injection
-     *
-     * @param mixed $input
+     * @param $input
+     * @param bool $scriptTags
+     * @param bool $styleTags
+     * @param bool $multiLineComments
      * @return string
-     * @access public
      */
     public static function CleanInput($input, $scriptTags = true, $styleTags = true, $multiLineComments = true) {
 

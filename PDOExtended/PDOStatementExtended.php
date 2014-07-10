@@ -35,44 +35,44 @@ use PDO, PDOStatement;
  */
 Class PDOStatementExtended Extends PDOStatement {
 
-    protected   $Keywords       =   Array();
-    protected   $BoundValues    =   Array();
     public      $queryString;
-    protected   $Preview;
-    protected   $Duration;
-    protected   $Executed       =   false;
-    protected   $ExecCount      =   0;
+    protected   $preview;
+    protected   $keywords       =   Array();
+    protected   $boundValues    =   Array();
+    protected   $duration       =   0;
+    protected   $executed       =   false;
+    protected   $execCount      =   0;
 
     /**
      * When bindValue() is called, we store its params
      */
-    public function BindValue($Parameter, $Value, $PDOType = null) {
+    public function bindValue($parameter, $value, $PDOType = null) {
 
         # Flush Bound Values if statement has previously been executed
-        if ($this->Executed)
-            $this->BoundValues    =    Array()  AND     $this->Executed = false;
+        if ($this->executed)
+            $this->boundValues    =    Array()  AND     $this->executed = false;
 
-        $this->BoundValues[]    =    Array('Parameter' => $Parameter, 'Value' => $Value, 'PDOType' => $PDOType);
-        parent::BindValue($Parameter, $Value, $PDOType);
+        $this->boundValues[]    =    Array('Parameter' => $parameter, 'Value' => $value, 'PDOType' => $PDOType);
+        parent::bindValue($parameter, $value, $PDOType);
         return $this;
     }
 
     /**
      * Binds several values at once
      */
-    public function BindValues($SqlValues = array()) {
+    public function bindValues($sqlValues = array()) {
 
-        if (empty($SqlValues))
+        if (empty($sqlValues))
             return $this;
 
-        if (!is_array($SqlValues))
-            $SqlValues  =    Array($SqlValues);
+        if (!is_array($sqlValues))
+            $sqlValues  =    Array($sqlValues);
 
-        foreach ($SqlValues AS $Key => $Value)
+        foreach ($sqlValues AS $Key => $Value)
             if (is_numeric($Key))
-                $this   ->  BindValue((int) $Key + 1, $Value, self::PDOType($Value));
+                $this   ->  bindValue((int) $Key + 1, $Value, self::PDOType($Value));
             else
-                $this   ->  BindValue(':' . $Key, $Value, self::PDOType($Value));
+                $this   ->  bindValue(':' . $Key, $Value, self::PDOType($Value));
 
         return $this;
     }
@@ -80,15 +80,15 @@ Class PDOStatementExtended Extends PDOStatement {
     /**
      * Executes query, measures the total time
      */
-    public function Execute($input_parameters = null) {
+    public function execute($input_parameters = null) {
 
-        $Start          =    microtime(true);
-        parent::Execute($input_parameters);
-        $End            =    microtime(true);
+        $start          =    microtime(true);
+        parent::execute($input_parameters);
+        $end            =    microtime(true);
 
-        $this->Duration =    round($End - $Start, 4);
-        $this->Executed =    true;
-        $this->ExecCount++;
+        $this->duration =    round($end - $start, 4);
+        $this->executed =    true;
+        $this->execCount++;
 
         return $this;
     }
@@ -96,131 +96,131 @@ Class PDOStatementExtended Extends PDOStatement {
     /**
      * Executes the statement with bounded params
      *
-     * @param array $SqlValues : Optional PDO Values to bind
+     * @param array $sqlValues : Optional PDO Values to bind
      * @return PDOStatementExtended instance
      */
-    public function Sql($SqlValues = array()) {
-        return $this->BindValues($SqlValues)->Execute();
+    public function sql($sqlValues = array()) {
+        return $this->bindValues($sqlValues)->execute();
     }
 
     /**
-     * SqlArray executes Query : returns the whole result set
+     * sqlArray executes Query : returns the whole result set
      *
-     * @param array $SqlValues : Optional PDO Values to bind
+     * @param array $sqlValues : Optional PDO Values to bind
      * @return Array
      */
-    public function SqlArray($SqlValues = array()) {
-        return $this->BindValues($SqlValues)->Execute()->FetchAll(PDO::FETCH_ASSOC);
+    public function sqlArray($sqlValues = array()) {
+        return $this->bindValues($sqlValues)->execute()->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
-     * SqlRow executes Query : returns the 1st row of your result set
+     * sqlRow executes Query : returns the 1st row of your result set
      *
-     * @param array $SqlValues : Optional PDO Values to bind
+     * @param array $sqlValues : Optional PDO Values to bind
      * @return Array
      */
-    public function SqlRow($SqlValues = array()) {
-        return $this->BindValues($SqlValues)->Execute()->Fetch(PDO::FETCH_ASSOC);
+    public function sqlRow($sqlValues = array()) {
+        return $this->bindValues($sqlValues)->execute()->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
      * SqlValues executes Query : returns the 1st column of your result set
      *
-     * @param array $SqlValues : Optional PDO Values to bind
+     * @param array $sqlValues : Optional PDO Values to bind
      * @return Array
      */
-    public function SqlColumn($SqlValues = array()) {
-        return $this->BindValues($SqlValues)->Execute()->FetchAll(PDO::FETCH_COLUMN);
+    public function sqlColumn($sqlValues = array()) {
+        return $this->bindValues($sqlValues)->execute()->fetchAll(PDO::FETCH_COLUMN);
     }
 
     /**
-     * SqlValue executes Query : returns the 1st cell of your result set
+     * sqlValue executes Query : returns the 1st cell of your result set
      *
-     * @param array $SqlValues : Optional PDO Values to bind
+     * @param array $sqlValues : Optional PDO Values to bind
      * @return String
      */
-    public function SqlValue($SqlValues = array()) {
-        return $this->BindValues($SqlValues)->Execute()->Fetch(PDO::FETCH_COLUMN);
+    public function sqlValue($sqlValues = array()) {
+        return $this->bindValues($sqlValues)->execute()->fetch(PDO::FETCH_COLUMN);
     }
 
     /**
-     * SqlAssoc executes Query :
-     * If $DataType == self::TO_STRING : returns an associative array where the 1st column is the key and the 2nd is the value
-     * If $DataType == self::TO_STDCLASS : returns an associative array where the 1st column is the key the others are properties of an anonymous object
-     * If $DataType == self::TO_ARRAY_ASSOC : returns an associative array where the 1st column is the key the others are an associative array
-     * If $DataType == self::TO_ARRAY_INDEX : returns an associative array where the 1st column is the key the others are an indexed array
+     * sqlAssoc executes Query :
+     * If $dataType == self::TO_STRING : returns an associative array where the 1st column is the key and the 2nd is the value
+     * If $dataType == self::TO_STDCLASS : returns an associative array where the 1st column is the key the others are properties of an anonymous object
+     * If $dataType == self::TO_ARRAY_ASSOC : returns an associative array where the 1st column is the key the others are an associative array
+     * If $dataType == self::TO_ARRAY_INDEX : returns an associative array where the 1st column is the key the others are an indexed array
      *
-     * @param array $SqlValues : PDO Values to bind
-     * @param int $DataType : type of data wanted
+     * @param array $sqlValues : PDO Values to bind
+     * @param int $dataType : type of data wanted
      * @return Array
      */
-    public function SqlAssoc($SqlValues = array(), $DataType = self::TO_STRING) {
-        $Data    =    $this->BindValues($SqlValues)->Execute()->Fetch(PDO::FETCH_ASSOC);
+    public function sqlAssoc($sqlValues = array(), $dataType = self::TO_STRING) {
+        $data    =    $this->bindValues($sqlValues)->execute()->fetch(PDO::FETCH_ASSOC);
 
-        if ($Data) :
+        if ($data) :
 
-            $Keys    =    array_keys($Data);
+            $keys    =    array_keys($data);
 
-            if ($DataType == PDOExtended::TO_STDCLASS)
-                $Result    =    Array($Data[$Keys[0]] => (object) array_slice($Data, 1));
+            if ($dataType == PDOExtended::TO_STDCLASS)
+                $result    =    Array($data[$keys[0]] => (object) array_slice($data, 1));
 
-            elseif ($DataType == PDOExtended::TO_ARRAY_ASSOC)
-                $Result    =    Array($Data[$Keys[0]] => array_slice($Data, 1));
+            elseif ($dataType == PDOExtended::TO_ARRAY_ASSOC)
+                $result    =    Array($data[$keys[0]] => array_slice($data, 1));
 
-            elseif ($DataType == PDOExtended::TO_ARRAY_INDEX)
-                $Result    =    Array($Data[$Keys[0]] => array_values(array_slice($Data, 1)));
+            elseif ($dataType == PDOExtended::TO_ARRAY_INDEX)
+                $result    =    Array($data[$keys[0]] => array_values(array_slice($data, 1)));
 
             else // $DataType == PDOExtended::TO_STRING by default
-                $Result    =    Array($Data[$Keys[0]] => $Data[$Keys[1]]);
+                $result    =    Array($data[$keys[0]] => $data[$keys[1]]);
 
-            return $Result;
+            return $result;
 
-            return $Result;
+            return $result;
 
         else :
-            return $Data;
+            return $data;
 
         endif;
 
     }
 
     /**
-     * SqlMultiAssoc executes Query :
-     * If $DataType == self::TO_STRING : returns an associative array where the 1st column is the key and the 2nd is the value
-     * If $DataType == self::TO_STDCLASS : returns an associative array where the 1st column is the key the others are properties of an anonymous object
-     * If $DataType == self::TO_ARRAY_ASSOC : returns an associative array where the 1st column is the key the others are an associative array
-     * If $DataType == self::TO_ARRAY_INDEX : returns an associative array where the 1st column is the key the others are an indexed array
+     * sqlMultiAssoc executes Query :
+     * If $dataType == self::TO_STRING : returns an associative array where the 1st column is the key and the 2nd is the value
+     * If $dataType == self::TO_STDCLASS : returns an associative array where the 1st column is the key the others are properties of an anonymous object
+     * If $dataType == self::TO_ARRAY_ASSOC : returns an associative array where the 1st column is the key the others are an associative array
+     * If $dataType == self::TO_ARRAY_INDEX : returns an associative array where the 1st column is the key the others are an indexed array
      *
-     * @param array $SqlValues : PDO Values to bind
-     * @param int $DataType : type of data wanted
+     * @param array $sqlValues : PDO Values to bind
+     * @param int $dataType : type of data wanted
      * @return Array
      */
-    public function SqlMultiAssoc($SqlValues = array(), $DataType = self::TO_STRING) {
-        $Data    =    $this->BindValues($SqlValues)->Execute()->FetchAll(PDO::FETCH_ASSOC);
+    public function sqlMultiAssoc($sqlValues = array(), $dataType = self::TO_STRING) {
+        $data    =    $this->bindValues($sqlValues)->execute()->fetchAll(PDO::FETCH_ASSOC);
 
-        if (array_key_exists(0, $Data)) :
+        if (array_key_exists(0, $data)) :
 
-            $Keys       =    array_keys($Data[0]);
-            $Result     =    Array();
+            $keys       =    array_keys($data[0]);
+            $result     =    Array();
 
-            foreach ($Data AS $Item)
+            foreach ($data AS $item)
 
-                if ($DataType == PDOExtended::TO_STDCLASS)
-                    $Result[]    =    Array($Item[$Keys[0]] => (object) array_slice($Item, 1));
+                if ($dataType == PDOExtended::TO_STDCLASS)
+                    $result[]    =    Array($item[$keys[0]] => (object) array_slice($item, 1));
 
-                elseif ($DataType == PDOExtended::TO_ARRAY_ASSOC)
-                    $Result[]    =    Array($Item[$Keys[0]] => array_slice($Item, 1));
+                elseif ($dataType == PDOExtended::TO_ARRAY_ASSOC)
+                    $result[]    =    Array($item[$keys[0]] => array_slice($item, 1));
 
-                elseif ($DataType == PDOExtended::TO_ARRAY_INDEX)
-                    $Result[]    =    Array($Item[$Keys[0]] => array_values(array_slice($Item, 1)));
+                elseif ($dataType == PDOExtended::TO_ARRAY_INDEX)
+                    $result[]    =    Array($item[$keys[0]] => array_values(array_slice($item, 1)));
 
                 else // $DataType == PDOExtended::TO_STRING by default
-                    $Result[]    =    Array($Item[$Keys[0]] => $Item[$Keys[1]]);
+                    $result[]    =    Array($item[$keys[0]] => $item[$keys[1]]);
 
-            return $Result;
+            return $result;
 
         else :
-            return $Data;
+            return $data;
 
         endif;
 
@@ -234,25 +234,32 @@ Class PDOStatementExtended Extends PDOStatement {
      */
     public function Debug() {
 
-        $this->Keywords     =    Array();
-        $this->Preview      =    preg_replace("#\t+#", "\t", $this->queryString);
+        $this->keywords     =    Array();
+        $this->preview      =    preg_replace("#\t+#", "\t", $this->queryString);
 
         # Case of question mark placeholders
-        if (array_key_exists(0, $this->BoundValues) && $this->BoundValues[0]['Parameter'] === 1)
-            foreach ($this->BoundValues AS $BoundParam)
-                $this->Preview    =    preg_replace("/([\?])/", self::DebugValue($BoundParam), $this->Preview, 1);
+        if (array_key_exists(0, $this->boundValues) && $this->boundValues[0]['Parameter'] === 1)
+            foreach ($this->boundValues AS $BoundParam)
+                $this->preview    =    preg_replace("/([\?])/", self::DebugValue($BoundParam), $this->preview, 1);
 
         # Case of named placeholders
         else
-            foreach ($this->BoundValues AS $boundValue)
-                $this->Keywords[]    =    $boundValue['Parameter'];
-        foreach ($this->Keywords AS $Word)
-            foreach ($this->BoundValues AS $BoundParam)
+            foreach ($this->boundValues AS $boundValue)
+                $this->keywords[]    =    $boundValue['Parameter'];
+        foreach ($this->keywords AS $Word)
+            foreach ($this->boundValues AS $BoundParam)
                 if ($BoundParam['Parameter'] == $Word)
-                    $this->Preview    =    preg_replace("/(\:\b".substr($Word, 1)."\b)/i", self::DebugValue($BoundParam), $this->Preview);
+                    $this->preview    =    preg_replace("/(\:\b".substr($Word, 1)."\b)/i", self::DebugValue($BoundParam), $this->preview);
 
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function preview() {
+        return $this->preview;
     }
 
     /**
@@ -265,29 +272,29 @@ Class PDOStatementExtended Extends PDOStatement {
     /**
      * Write access on private and protected properties : DENIED
      */
-    public function __set($Key, $Value) {
+    public function __set($key, $value) {
         return false;
     }
 
     /**
      * Read access on private and protected properties : TOLERATED
      */
-    public function __get($Key) {
-        return $this->$Key;
+    public function __get($key) {
+        return $this->$key;
     }
 
     /**
      * Add quotes or not for Debug() method
      */
-    private static function DebugValue($BoundParam) {
-        if (in_array($BoundParam['PDOType'], Array(PDO::PARAM_BOOL, PDO::PARAM_INT)))
-            return (int) $BoundParam['Value'];
+    private static function DebugValue($boundParam) {
+        if (in_array($boundParam['PDOType'], Array(PDO::PARAM_BOOL, PDO::PARAM_INT)))
+            return (int) $boundParam['Value'];
 
-        elseif ($BoundParam['PDOType'] == PDO::PARAM_NULL)
+        elseif ($boundParam['PDOType'] == PDO::PARAM_NULL)
             return 'NULL';
 
         else
-            return (string) "'". addslashes($BoundParam['Value']) . "'";
+            return (string) "'". addslashes($boundParam['Value']) . "'";
     }
 
     /**
@@ -295,12 +302,12 @@ Class PDOStatementExtended Extends PDOStatement {
      * Example : Array(0, 22, 99) ==> '?,?,?'
      * Usage : "WHERE VALUES IN (". PDOStatementExtended::PlaceHolders($MyArray) .")"
      *
-     * @param array $Array
+     * @param array $array
      * @return string placeholder
      * @author Beno!t POLASZEK - Jun 2013
      */
-    public static function PlaceHolders($Array = Array()) {
-        return implode(',', array_fill(0, count($Array), '?'));
+    public static function PlaceHolders($array = Array()) {
+        return implode(',', array_fill(0, count($array), '?'));
     }
 
     /**
@@ -309,12 +316,12 @@ Class PDOStatementExtended Extends PDOStatement {
      * @param mixed var
      * @return PDO const
      */
-    public static function PDOType($Var) {
+    public static function PDOType($var) {
 
-        switch (strtolower(gettype($Var))) :
+        switch (strtolower(gettype($var))) :
 
             case 'string'   :
-                return (strtoupper($Var) == 'NULL') ? PDO::PARAM_NULL : PDO::PARAM_STR;
+                return (strtoupper($var) == 'NULL') ? PDO::PARAM_NULL : PDO::PARAM_STR;
 
             case 'int'      :
             case 'integer'  :

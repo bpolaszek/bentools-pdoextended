@@ -27,9 +27,8 @@
  */
 
 namespace PDOExtended;
-use PDO;
 
-Trait PDOExtendedSingleton {
+trait PDOExtendedSingleton {
     /**
      * Current Instance
      */
@@ -47,10 +46,10 @@ Trait PDOExtendedSingleton {
      * @param string $username : User Name
      * @param string $password : User Password
      * @param string $driver_options : PDO Specific options
-     * @return PDO PDOInstance
+     * @param bool $connect
      */
-    private function __construct($dsn, $username = null, $password = null, $driver_options = null) {
-        $this->PDOInstance  =   new PDOExtended($dsn, $username, $password, $driver_options);
+    private function __construct($dsn, $username = null, $password = null, $driver_options = null, $connect = true) {
+        $this->PDOInstance  =   new PDOExtended($dsn, $username, $password, $driver_options, $connect);
     }
 
     /**
@@ -60,11 +59,12 @@ Trait PDOExtendedSingleton {
      * @param string $username : User Name
      * @param string $password : User Password
      * @param string $driver_options : PDO Specific options
+     * @param bool $connect
      * @return PDOExtended PDOInstance
      */
-    public static function Cnx($dsn = null, $username = null, $password = null, $driver_options = null) {
+    public static function Cnx($dsn = null, $username = null, $password = null, $driver_options = null, $connect = true) {
         if (is_null(self::$instance))
-            self::$instance =   new self($dsn, $username, $password, $driver_options);
+            self::$instance =   new self($dsn, $username, $password, $driver_options, $connect);
 
         return self::$instance;
     }
@@ -72,7 +72,7 @@ Trait PDOExtendedSingleton {
     /**
      * Magic call - PDOExtended and PDO methods
      */
-    public function __call($Method, $Args = null) {
-        return call_user_func_array(Array($this->PDOInstance, $Method), $Args);
+    public function __call($method, $args = null) {
+        return call_user_func_array(Array($this->PDOInstance, $method), $args);
     }
 }
