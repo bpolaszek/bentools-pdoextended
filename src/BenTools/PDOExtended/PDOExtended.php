@@ -27,6 +27,7 @@ class PDOExtended extends PDO {
     protected       $password               =   '';
     protected       $driver_options         =   array();
     protected       $isPaused               =   false;
+    protected       $latestStmt;
 
     const           TO_ARRAY_ASSOC          =    1;
     const           TO_ARRAY_INDEX          =    2;
@@ -115,6 +116,7 @@ class PDOExtended extends PDO {
         # Execution
         try {
             $stmt->execute();
+            $this->setLatestStmt($stmt);
         }
 
         # Custom PDO Exception, allowing query preview
@@ -210,18 +212,22 @@ class PDOExtended extends PDO {
 
         $this->checkConnection();
 
-        if (is_string($sqlString)) {
+        if ($sqlString instanceof PDOStatementExtended)
+            $stmt   =   $sqlString;
+
+        else {
 
             if ($this->getCacheHandler()->exists($this->getCacheHandler()->key($sqlString)))
-                return $this->getCacheHandler()->fetch($this->getCacheHandler()->key($sqlString));
+                $stmt   =   $this->getCacheHandler()->fetch($this->getCacheHandler()->key($sqlString));
 
             else
-                return $this->getCacheHandler()->store($this->getCacheHandler()->key($sqlString), $this->getPdo()->prepare($sqlString, $options), $this->getCacheTtl());
+                $stmt   =   $this->getCacheHandler()->store($this->getCacheHandler()->key($sqlString), $this->getPdo()->prepare($sqlString, $options), $this->getCacheTtl());
 
         }
 
-        elseif ($sqlString instanceof PDOStatementExtended)
-            return $sqlString;
+        $this->setLatestStmt($stmt);
+
+        return $stmt;
     }
 
     /**
@@ -440,6 +446,30 @@ class PDOExtended extends PDO {
     public function setCacheTtl($cacheTtl) {
         $this->cacheTtl = (int) $cacheTtl;
         return $this;
+    }
+
+    /**
+     * Stores the latest statement
+     *
+     * @param PDOStatementExtended $Stmt
+     * @return $this - current instance
+     * @access protected
+     * @author Beno!t POLASZEK -  2013
+     */
+    protected function setLatestStmt(\PDOStatement $Stmt) {
+        $this->latestStmt    =    $Stmt;
+        return $this;
+    }
+
+    /**
+     * Retrieves the latest statement
+     *
+     * @return PDOStatementExtended
+     * @access public
+     * @author Beno!t POLASZEK -  2013
+     */
+    public function getLatestStmt() {
+        return $this->latestStmt;
     }
 
     /**
