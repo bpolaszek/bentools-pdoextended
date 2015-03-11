@@ -1,0 +1,26 @@
+{
+  "name": "bentools/pdoextended",
+  "type": "library",
+  "description": "En enhanced PDO class",
+  "keywords": ["pdo", "extended", "pdoextended", "pdo extended", "database", "mysql", "connection"],
+  "homepage": "https://github.com/bpolaszek/bentools-pdoextended",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Beno!t POLASZEK",
+      "role": "Developer"
+    }
+  ],
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/bpolaszek/bentools-pdoextended"
+    }
+  ],
+  "require": {
+    "php": ">=5.3"
+  },
+  "autoload": {
+    "psr-4": {"BenTools\\": "src/BenTools"}
+  }
+}
