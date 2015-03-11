@@ -58,7 +58,8 @@ class PDOExtended extends PDO {
      * @return $this
      */
     public function connect() {
-        $this->setPdo(new PDO($this->getDsn(), $this->getUsername(), $this->getPassword(), $this->getDriverOptions()));
+        if (!$this->getPdo())
+            $this->setPdo(new PDO($this->getDsn(), $this->getUsername(), $this->getPassword(), $this->getDriverOptions()));
         $this->isPaused =   false;
         return $this;
     }
@@ -456,6 +457,18 @@ class PDOExtended extends PDO {
      */
     protected function throwNotConnectedException() {
         throw new PDOExceptionExtended("You're not connected.");
+    }
+
+    /**
+     * @param Pdo $pdo
+     * @param array $driver_options
+     * @param string $cache_handler
+     * @return self
+     */
+    public static function NewInstanceFromPdo(\Pdo $pdo, $driver_options = []) {
+        $cnx    =   new static(null, null, null, $driver_options, false);
+        $cnx    ->  setPdo($pdo);
+        return $cnx;
     }
 
 }

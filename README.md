@@ -21,7 +21,7 @@ $row = $cnx->sqlRow("SELECT * FROM table WHERE Name LIKE :Name AND Id >= :Id", [
 
 $stmt = $cnx->prepare("SELECT Id FROM table WHERE CreationDate BETWEEN ? AND ?");
 $ids = $stmt->sqlColumn(['2013-01-01', '2013-06-01']); // Fetches Ids in an indexed array
-var_dump($stmt->debug()->preview); // SELECT Id FROM table WHERE CreationDate BETWEEN '2013-01-01' AND '2013-06-01'
+var_dump($stmt->debug()->preview()); // SELECT Id FROM table WHERE CreationDate BETWEEN '2013-01-01' AND '2013-06-01'
 var_dump($stmt->debug()->duration); // 0.004
 
 ``` 
@@ -45,7 +45,7 @@ try {
 }
 catch (StmtException $e) {
     var_dump($e->getStmt()->queryString); // SELECT * FROM table WHERE CreationDate IN (?, ?)
-    var_dump($e->getStmt()->preview); // SELECT * FROM table WHERE CreationDate IN ('2013-01-01', '2013-06-01')
+    var_dump($e->getStmt()->preview()); // SELECT * FROM table WHERE CreationDate IN ('2013-01-01', '2013-06-01')
 }
 ``` 
 
