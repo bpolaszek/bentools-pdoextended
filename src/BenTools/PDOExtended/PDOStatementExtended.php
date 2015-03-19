@@ -37,8 +37,10 @@ class PDOStatementExtended extends PDOStatement {
             $parameter  =   ':' . $parameter;
 
         # Flush Bound Values if statement has previously been executed
-        if ($this->executed)
-            $this->boundValues  =    array()  AND     $this->executed = false;
+        if ($this->executed) {
+            $this->boundValues  =   array();
+            $this->executed     =   false;
+        }
 
         $this->boundValues[]    =    array('k' => $parameter, 'v' => $value, 't' => is_null($PDOType) ? self::PDOType($value) : $PDOType);
         parent::bindValue($parameter, $value, $PDOType);
