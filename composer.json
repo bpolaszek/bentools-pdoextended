@@ -1,7 +1,7 @@
 {
   "name": "bentools/pdoextended",
   "type": "library",
-  "description": "En enhanced PDO class",
+  "description": "An enhanced PDO class",
   "keywords": ["pdo", "extended", "pdoextended", "pdo extended", "database", "mysql", "connection"],
   "homepage": "https://github.com/bpolaszek/bentools-pdoextended",
   "license": "MIT",
