@@ -86,6 +86,7 @@ class PDOStatementExtended extends PDOStatement {
         $this->totalDuration    +=   $this->duration;
         $this->executed         =    true;
         $this->execCount++;
+        $this->preview          =   null;
 
         return $this;
     }
