@@ -92,6 +92,16 @@ class PDOStatementExtended extends PDOStatement {
     }
 
     /**
+     * setFetchMode() override, allowing fluent interface
+     * @param int $mode
+     * @return $this
+     */
+    public function setFetchMode($mode) {
+        call_user_func_array(array('parent', 'setFetchMode'), func_get_args());
+        return $this;
+    }
+
+    /**
      * Executes the statement with bounded params
      *
      * @param array $sqlValues : Optional PDO Values to bind
@@ -105,7 +115,7 @@ class PDOStatementExtended extends PDOStatement {
      * SqlArray executes Query : returns the whole result set
      *
      * @param array $sqlValues : Optional PDO Values to bind
-     * @return Array
+     * @return array
      */
     public function sqlArray($sqlValues = array()) {
         return $this->bindValues($sqlValues)->execute()->fetchAll(PDO::FETCH_ASSOC);
@@ -115,7 +125,7 @@ class PDOStatementExtended extends PDOStatement {
      * SqlRow executes Query : returns the 1st row of your result set
      *
      * @param array $sqlValues : Optional PDO Values to bind
-     * @return Array
+     * @return array
      */
     public function sqlRow($sqlValues = array()) {
         return $this->bindValues($sqlValues)->execute()->fetch(PDO::FETCH_ASSOC);
@@ -125,7 +135,7 @@ class PDOStatementExtended extends PDOStatement {
      * SqlValues executes Query : returns the 1st column of your result set
      *
      * @param array $sqlValues : Optional PDO Values to bind
-     * @return Array
+     * @return array
      */
     public function sqlColumn($sqlValues = array()) {
         return $this->bindValues($sqlValues)->execute()->fetchAll(PDO::FETCH_COLUMN);
@@ -135,10 +145,39 @@ class PDOStatementExtended extends PDOStatement {
      * SqlValue executes Query : returns the 1st cell of your result set
      *
      * @param array $sqlValues : Optional PDO Values to bind
-     * @return String
+     * @return string
      */
     public function sqlValue($sqlValues = array()) {
         return $this->bindValues($sqlValues)->execute()->fetch(PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * sqlObject executes Query : returns an hydrated object from the given class / object
+     * @param       $class - can be an existing object or a class name
+     * @param array $sqlValues : Optional PDO Values to bind
+     * @return object
+     */
+    public function sqlObject($class, $sqlValues = array()) {
+        if (is_object($class))
+            return $this->setFetchMode(PDO::FETCH_INTO, $class)->bindValues($sqlValues)->execute()->fetch(PDO::FETCH_INTO);
+        else
+            return $this->setFetchMode(PDO::FETCH_CLASS, $class)->bindValues($sqlValues)->execute()->fetch(PDO::FETCH_CLASS);
+    }
+
+    /**
+     * sqlObjects executes Query : returns an array of hydrated objects from the given class
+     * @param       $class - can be a class name only
+     * @param array $sqlValues : Optional PDO Values to bind
+     * @return array
+     */
+    public function sqlObjects($class, $sqlValues = array()) {
+        if (is_object($class))
+            $class = get_class($class);
+        $this->setFetchMode(PDO::FETCH_CLASS, $class)->bindValues($sqlValues)->execute();
+        $result = array();
+        while ($object = $this->fetch(PDO::FETCH_CLASS))
+            $result[] = $object;
+        return $result;
     }
 
     /**
@@ -150,7 +189,7 @@ class PDOStatementExtended extends PDOStatement {
      *
      * @param array $sqlValues : PDO Values to bind
      * @param int $dataType : type of data wanted
-     * @return Array
+     * @return array
      */
     public function sqlAssoc($sqlValues = array(), $dataType = self::TO_STRING) {
         $data    =    $this->bindValues($sqlValues)->execute()->fetch(PDO::FETCH_ASSOC);
@@ -188,7 +227,7 @@ class PDOStatementExtended extends PDOStatement {
      *
      * @param array $sqlValues : PDO Values to bind
      * @param int $dataType : type of data wanted
-     * @return Array
+     * @return array
      */
     public function sqlMultiAssoc($sqlValues = array(), $dataType = self::TO_STRING) {
         $data    =    $this->bindValues($sqlValues)->execute()->fetchAll(PDO::FETCH_ASSOC);
@@ -259,7 +298,7 @@ class PDOStatementExtended extends PDOStatement {
     }
 
     /**
-     * String context => query preview
+     * string context => query preview
      */
     public function __toString() {
         return (string) $this->queryString;
@@ -281,7 +320,7 @@ class PDOStatementExtended extends PDOStatement {
 
     /**
      * Transforms an indexed array into placeholders
-     * Example : Array(0, 22, 99) ==> '?,?,?'
+     * Example : array(0, 22, 99) ==> '?,?,?'
      * Usage : "WHERE VALUES IN (". PDOStatementExtended::PlaceHolders($MyArray) .")"
      *
      * @param array $array
@@ -295,7 +334,7 @@ class PDOStatementExtended extends PDOStatement {
     /**
      * PDO Automatic type binding
      *
-     * @param mixed var
+     * @param mixed $var
      * @return PDO const
      */
     public static function PDOType($var) {

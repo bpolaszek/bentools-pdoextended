@@ -143,7 +143,7 @@ class PDOExtended extends PDO {
      *
      * @param mixed $sqlString : SQL Query (String or instanceof PDOStatement)
      * @param array $sqlValues : Optional PDO Values to bind
-     * @return Array
+     * @return array
      */
     public function sqlRow($sqlString, $sqlValues = array()) {
         return $this->prepare($sqlString)->sqlRow($sqlValues);
@@ -154,7 +154,7 @@ class PDOExtended extends PDO {
      *
      * @param mixed $sqlString : SQL Query (String or instanceof PDOStatement)
      * @param array $sqlValues : Optional PDO Values to bind
-     * @return Array
+     * @return array
      */
     public function sqlColumn($sqlString, $sqlValues = array()) {
         return $this->prepare($sqlString)->sqlColumn($sqlValues);
@@ -165,10 +165,32 @@ class PDOExtended extends PDO {
      *
      * @param mixed $sqlString : SQL Query (String or instanceof PDOStatement)
      * @param array $sqlValues : Optional PDO Values to bind
-     * @return String
+     * @return string
      */
     public function sqlValue($sqlString, $sqlValues = array()) {
         return $this->prepare($sqlString)->sqlValue($sqlValues);
+    }
+
+    /**
+     * sqlObject executes Query : returns an hydrated object from the given class / object
+     * @param       $sqlString : SQL Query (String or instanceof PDOStatement)
+     * @param       $class - can be an existing object or a class name
+     * @param array $sqlValues : Optional PDO Values to bind
+     * @return object
+     */
+    public function sqlObject($sqlString, $class, $sqlValues = array()) {
+        return $this->prepare($sqlString)->sqlObject($class, $sqlValues);
+    }
+
+    /**
+     * sqlObjects executes Query : returns an array of hydrated objects from the given class
+     * @param       $sqlString : SQL Query (String or instanceof PDOStatement)
+     * @param       $class - can be a class name only
+     * @param array $sqlValues : Optional PDO Values to bind
+     * @return array
+     */
+    public function sqlObjects($sqlString, $class, $sqlValues = array()) {
+        return $this->prepare($sqlString)->sqlObjects($class, $sqlValues);
     }
 
     /**
@@ -181,7 +203,7 @@ class PDOExtended extends PDO {
      * @param mixed $sqlString : SQL Query (String or instanceof PDOStatement)
      * @param array $sqlValues : PDO Values to bind
      * @param int $dataType : type of data wanted
-     * @return Array
+     * @return array
      */
     public function sqlAssoc($sqlString, $sqlValues = array(), $dataType = self::TO_STRING) {
         return $this->prepare($sqlString)->sqlAssoc($sqlValues, $dataType);
@@ -197,7 +219,7 @@ class PDOExtended extends PDO {
      * @param mixed $sqlString : SQL Query as a string or a PDOStatementExtended
      * @param array $sqlValues : PDO Values to bind
      * @param int $dataType : type of data wanted
-     * @return Array
+     * @return array
      */
     public function sqlMultiAssoc($sqlString, $sqlValues = array(), $dataType = self::TO_STRING) {
         return $this->prepare($sqlString)->sqlMultiAssoc($sqlValues, $dataType);
