@@ -96,7 +96,7 @@ class PDOStatementExtended extends PDOStatement {
      * @param int $mode
      * @return $this
      */
-    public function setFetchMode($mode) {
+    public function setFetchMode($mode, $params = NULL) {
         call_user_func_array(array('parent', 'setFetchMode'), func_get_args());
         return $this;
     }
@@ -191,7 +191,7 @@ class PDOStatementExtended extends PDOStatement {
      * @param int $dataType : type of data wanted
      * @return array
      */
-    public function sqlAssoc($sqlValues = array(), $dataType = self::TO_STRING) {
+    public function sqlAssoc($sqlValues = array(), $dataType = PDOExtended::TO_STRING) {
         $data    =    $this->bindValues($sqlValues)->execute()->fetch(PDO::FETCH_ASSOC);
 
         if ($data) {
@@ -229,7 +229,7 @@ class PDOStatementExtended extends PDOStatement {
      * @param int $dataType : type of data wanted
      * @return array
      */
-    public function sqlMultiAssoc($sqlValues = array(), $dataType = self::TO_STRING) {
+    public function sqlMultiAssoc($sqlValues = array(), $dataType = PDOExtended::TO_STRING) {
         $data    =    $this->bindValues($sqlValues)->execute()->fetchAll(PDO::FETCH_ASSOC);
 
         if (array_key_exists(0, $data)) :
